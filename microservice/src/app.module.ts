@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule } from './modules/clients/clients.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
 import { ClientOrmEntity } from './modules/clients/infrastructure/client.orm-entity';
-import { InvoiceOrmEntity } from './modules/invoices/infrastructure/invoice.orm-entity';
+import { InvoiceOrmEntity } from './modules/invoices/infrastructure/persistence/entities/invoice.orm-entity';
 
 @Module({
   imports: [
