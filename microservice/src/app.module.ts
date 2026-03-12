@@ -1,10 +1,25 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ClientsModule } from './modules/clients/clients.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
+import { ClientOrmEntity } from './modules/clients/infrastructure/client.orm-entity';
+import { InvoiceOrmEntity } from './modules/invoices/infrastructure/invoice.orm-entity';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'root',
+      database: 'disacomp_db',
+      entities: [ClientOrmEntity, InvoiceOrmEntity],
+      synchronize: true,
+    }),
+    ClientsModule,
+    InvoicesModule,
+  ],
 })
 export class AppModule {}
+
