@@ -11,19 +11,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvoicesController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const pdfkit_1 = __importDefault(require("pdfkit"));
 const invoices_service_1 = require("./invoices.service");
+const pdf_generator_service_1 = require("./pdf-generator.service");
 let InvoicesController = class InvoicesController {
     invoicesService;
-    constructor(invoicesService) {
+    pdfGeneratorService;
+    constructor(invoicesService, pdfGeneratorService) {
         this.invoicesService = invoicesService;
+        this.pdfGeneratorService = pdfGeneratorService;
     }
     async create(body) {
         try {
@@ -41,47 +40,7 @@ let InvoicesController = class InvoicesController {
     }
     async getPdfReport(startDate, endDate, res) {
         const report = await this.invoicesService.getSalesReport(startDate, endDate);
-        const doc = new pdfkit_1.default({ margin: 50 });
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=reporte-ventas-${startDate}-${endDate}.pdf`);
-        doc.pipe(res);
-        doc
-            .fontSize(20)
-            .font('Helvetica-Bold')
-            .text('Reporte de Ventas', { align: 'center' });
-        doc.moveDown(0.5);
-        doc
-            .fontSize(11)
-            .font('Helvetica')
-            .text(`Período: ${startDate}  →  ${endDate}`, { align: 'center' });
-        doc.moveDown(1);
-        doc
-            .fontSize(13)
-            .font('Helvetica-Bold')
-            .text('Resumen');
-        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-        doc.moveDown(0.3);
-        doc
-            .fontSize(11)
-            .font('Helvetica')
-            .text(`Total de facturas: ${report.totalInvoices}`)
-            .text(`Monto total: $${Number(report.totalSales).toFixed(2)}`);
-        doc.moveDown(1);
-        if (report.invoices && report.invoices.length > 0) {
-            doc.fontSize(13).font('Helvetica-Bold').text('Detalle de facturas');
-            doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-            doc.moveDown(0.3);
-            report.invoices.forEach((inv, index) => {
-                doc
-                    .fontSize(10)
-                    .font('Helvetica')
-                    .text(`${index + 1}. #${inv.invoiceNumber}  |  Cliente ID: ${inv.clientId}  |  Fecha: ${new Date(inv.date).toLocaleDateString()}  |  $${Number(inv.total).toFixed(2)}  |  ${inv.status}`);
-            });
-        }
-        else {
-            doc.fontSize(11).font('Helvetica').text('No hay facturas en este período.');
-        }
-        doc.end();
+        await this.pdfGeneratorService.generateSalesReportPdf(report, startDate, endDate, res);
     }
     async findOne(id) {
         try {
@@ -182,6 +141,7 @@ __decorate([
 exports.InvoicesController = InvoicesController = __decorate([
     (0, swagger_1.ApiTags)('Invoices'),
     (0, common_1.Controller)('invoices'),
-    __metadata("design:paramtypes", [invoices_service_1.InvoicesService])
+    __metadata("design:paramtypes", [invoices_service_1.InvoicesService,
+        pdf_generator_service_1.PdfGeneratorService])
 ], InvoicesController);
 //# sourceMappingURL=invoices.controller.js.map

@@ -1,8 +1,10 @@
 import type { Response } from 'express';
 import { InvoicesService } from './invoices.service';
+import { PdfGeneratorService } from './pdf-generator.service';
 export declare class InvoicesController {
     private readonly invoicesService;
-    constructor(invoicesService: InvoicesService);
+    private readonly pdfGeneratorService;
+    constructor(invoicesService: InvoicesService, pdfGeneratorService: PdfGeneratorService);
     create(body: any): Promise<any>;
     findAll(): Promise<any>;
     getPdfReport(startDate: string, endDate: string, res: Response): Promise<void>;

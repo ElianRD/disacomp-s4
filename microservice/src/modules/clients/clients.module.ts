@@ -10,7 +10,7 @@ import { ClientEventConsumer } from './infrastructure/messaging/consumers/client
 import { ClientEventPublisher } from './infrastructure/messaging/publishers/client-event.publisher';
 
 // Domain
-import { IClientRepository } from './domain/repositories/client.repository.interface';
+import { IClientRepository, CLIENT_REPOSITORY } from './domain/repositories/client.repository.interface';
 
 // Application — Ports (output)
 import { ClientEventPublisherPort } from './application/ports/output/client-event-publisher.port';
@@ -27,7 +27,7 @@ import { ListClientsUseCase } from './application/use-cases/list-clients.use-cas
   controllers: [ClientEventConsumer],
   providers: [
     // Bind domain repository interface → infrastructure implementation
-    { provide: IClientRepository, useClass: ClientRepository },
+    { provide: CLIENT_REPOSITORY, useClass: ClientRepository },
     // Bind output port → infrastructure implementation
     { provide: ClientEventPublisherPort, useClass: ClientEventPublisher },
     // Use Cases

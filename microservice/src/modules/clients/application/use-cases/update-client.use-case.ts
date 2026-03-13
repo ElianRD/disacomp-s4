@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { UpdateClientPort } from '../ports/input/update-client.port';
 import { UpdateClientDto } from '../dtos/update-client.dto';
 import { ClientResponseDto } from '../dtos/client-response.dto';
-import { IClientRepository } from '../../domain/repositories/client.repository.interface';
+import { CLIENT_REPOSITORY } from '../../domain/repositories/client.repository.interface';
+import type { IClientRepository } from '../../domain/repositories/client.repository.interface';
 import { ClientId } from '../../domain/value-objects/client-id.vo';
 import { ClientNotFoundException } from '../../domain/exceptions/client-not-found.exception';
 import { ClientApplicationMapper } from '../mappers/client-application.mapper';
 
 @Injectable()
 export class UpdateClientUseCase implements UpdateClientPort {
-  constructor(private readonly repo: IClientRepository) {}
+  constructor(
+    @Inject(CLIENT_REPOSITORY)
+    private readonly repo: IClientRepository,
+  ) {}
 
   async execute(dto: UpdateClientDto): Promise<ClientResponseDto> {
     const client = await this.repo.findById(new ClientId(dto.id));

@@ -2,11 +2,13 @@ import { Client } from '../entities/client.entity';
 import { ClientId } from '../value-objects/client-id.vo';
 import { Rnc } from '../value-objects/rnc.vo';
 
-export abstract class IClientRepository {
-  abstract save(client: Client): Promise<void>;
-  abstract findAll(): Promise<Client[]>;
-  abstract findById(id: ClientId): Promise<Client | null>;
-  abstract findByRnc(rnc: Rnc): Promise<Client | null>;
-  abstract update(client: Client): Promise<void>;
-  abstract delete(id: ClientId): Promise<void>;
+export interface IClientRepository {
+  save(client: Client): Promise<void>;
+  findAll(): Promise<Client[]>;
+  findById(id: ClientId): Promise<Client | null>;
+  findByRnc(rnc: Rnc): Promise<Client | null>;
+  update(client: Client): Promise<void>;
+  delete(id: ClientId): Promise<void>;
 }
+
+export const CLIENT_REPOSITORY = 'CLIENT_REPOSITORY';

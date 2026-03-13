@@ -8,17 +8,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
+const clients_module_1 = require("./modules/clients/clients.module");
 const invoices_module_1 = require("./modules/invoices/invoices.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            config_1.ConfigModule.forRoot({ isGlobal: true }),
-            invoices_module_1.InvoicesModule,
-        ],
+        imports: [clients_module_1.ClientsModule, invoices_module_1.InvoicesModule],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

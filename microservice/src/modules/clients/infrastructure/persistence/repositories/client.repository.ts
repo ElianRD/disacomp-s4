@@ -9,13 +9,11 @@ import { ClientOrmEntity } from '../entities/client.orm-entity';
 import { ClientPersistenceMapper } from '../mappers/client-persistence.mapper';
 
 @Injectable()
-export class ClientRepository extends IClientRepository {
+export class ClientRepository implements IClientRepository {
   constructor(
     @InjectRepository(ClientOrmEntity)
     private readonly repo: Repository<ClientOrmEntity>,
-  ) {
-    super();
-  }
+  ) {}
 
   async save(client: Client): Promise<void> {
     await this.repo.save(ClientPersistenceMapper.toOrm(client));

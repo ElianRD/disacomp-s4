@@ -12,6 +12,7 @@ const microservices_1 = require("@nestjs/microservices");
 const env_config_1 = require("../../config/env.config");
 const invoices_controller_1 = require("./invoices.controller");
 const invoices_service_1 = require("./invoices.service");
+const pdf_generator_service_1 = require("./pdf-generator.service");
 let InvoicesModule = class InvoicesModule {
 };
 exports.InvoicesModule = InvoicesModule;
@@ -31,7 +32,7 @@ exports.InvoicesModule = InvoicesModule = __decorate([
             ]),
         ],
         controllers: [invoices_controller_1.InvoicesController],
-        providers: [invoices_service_1.InvoicesService],
+        providers: [invoices_service_1.InvoicesService, pdf_generator_service_1.PdfGeneratorService],
     })
 ], InvoicesModule);
 //# sourceMappingURL=invoices.module.js.map

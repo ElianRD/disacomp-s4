@@ -14,13 +14,16 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
-import PDFDocument from 'pdfkit';
 import { InvoicesService } from './invoices.service';
+import { PdfGeneratorService } from './pdf-generator.service';
 
 @ApiTags('Invoices')
 @Controller('invoices')
 export class InvoicesController {
-  constructor(private readonly invoicesService: InvoicesService) {}
+  constructor(
+    private readonly invoicesService: InvoicesService,
+    private readonly pdfGeneratorService: PdfGeneratorService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva factura' })
@@ -53,61 +56,7 @@ export class InvoicesController {
     @Res() res: Response,
   ) {
     const report = await this.invoicesService.getSalesReport(startDate, endDate);
-
-    const doc = new PDFDocument({ margin: 50 });
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=reporte-ventas-${startDate}-${endDate}.pdf`,
-    );
-    doc.pipe(res);
-
-    // Encabezado
-    doc
-      .fontSize(20)
-      .font('Helvetica-Bold')
-      .text('Reporte de Ventas', { align: 'center' });
-    doc.moveDown(0.5);
-    doc
-      .fontSize(11)
-      .font('Helvetica')
-      .text(`Período: ${startDate}  →  ${endDate}`, { align: 'center' });
-    doc.moveDown(1);
-
-    // Resumen
-    doc
-      .fontSize(13)
-      .font('Helvetica-Bold')
-      .text('Resumen');
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-    doc.moveDown(0.3);
-    doc
-      .fontSize(11)
-      .font('Helvetica')
-      .text(`Total de facturas: ${report.totalInvoices}`)
-      .text(`Monto total: $${Number(report.totalSales).toFixed(2)}`);
-    doc.moveDown(1);
-
-    // Listado
-    if (report.invoices && report.invoices.length > 0) {
-      doc.fontSize(13).font('Helvetica-Bold').text('Detalle de facturas');
-      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-      doc.moveDown(0.3);
-
-      report.invoices.forEach((inv: any, index: number) => {
-        doc
-          .fontSize(10)
-          .font('Helvetica')
-          .text(
-            `${index + 1}. #${inv.invoiceNumber}  |  Cliente ID: ${inv.clientId}  |  Fecha: ${new Date(inv.date).toLocaleDateString()}  |  $${Number(inv.total).toFixed(2)}  |  ${inv.status}`,
-          );
-      });
-    } else {
-      doc.fontSize(11).font('Helvetica').text('No hay facturas en este período.');
-    }
-
-    doc.end();
+    await this.pdfGeneratorService.generateSalesReportPdf(report, startDate, endDate, res);
   }
 
   @Get(':id')

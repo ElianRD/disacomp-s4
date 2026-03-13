@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule } from './modules/clients/clients.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
 import { databaseConfig, rabbitmqConfig } from './config/env.config';
 
 @Module({
@@ -25,6 +26,7 @@ import { databaseConfig, rabbitmqConfig } from './config/env.config';
       }),
     }),
     ClientsModule,
+    InvoicesModule,
   ],
 })
 export class AppModule {}

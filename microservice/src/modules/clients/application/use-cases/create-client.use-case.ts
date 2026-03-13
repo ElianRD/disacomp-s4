@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateClientPort } from '../ports/input/create-client.port';
 import { CreateClientDto } from '../dtos/create-client.dto';
 import { ClientResponseDto } from '../dtos/client-response.dto';
-import { IClientRepository } from '../../domain/repositories/client.repository.interface';
+import { CLIENT_REPOSITORY } from '../../domain/repositories/client.repository.interface';
+import type { IClientRepository } from '../../domain/repositories/client.repository.interface';
 import { Client } from '../../domain/entities/client.entity';
 import { ClientId } from '../../domain/value-objects/client-id.vo';
 import { Rnc } from '../../domain/value-objects/rnc.vo';
@@ -12,7 +13,10 @@ import { ClientApplicationMapper } from '../mappers/client-application.mapper';
 
 @Injectable()
 export class CreateClientUseCase implements CreateClientPort {
-  constructor(private readonly repo: IClientRepository) {}
+  constructor(
+    @Inject(CLIENT_REPOSITORY)
+    private readonly repo: IClientRepository,
+  ) {}
 
   async execute(dto: CreateClientDto): Promise<ClientResponseDto> {
     const existing = await this.repo.findByRnc(new Rnc(dto.rnc));

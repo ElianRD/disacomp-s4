@@ -4,6 +4,8 @@ import { environment } from '../../config/env.config';
 import { InvoicesController } from './invoices.controller';
 import { InvoicesService } from './invoices.service';
 
+import { PdfGeneratorService } from './pdf-generator.service';
+
 @Module({
   imports: [
     NestClientsModule.register([
@@ -19,6 +21,6 @@ import { InvoicesService } from './invoices.service';
     ]),
   ],
   controllers: [InvoicesController],
-  providers: [InvoicesService],
+  providers: [InvoicesService, PdfGeneratorService],
 })
 export class InvoicesModule {}
