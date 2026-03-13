@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule as NestClientsModule, Transport } from '@nestjs/microservices';
+import { environment } from '../../config/env.config';
 import { InvoicesController } from './invoices.controller';
 import { InvoicesService } from './invoices.service';
 
@@ -10,8 +11,8 @@ import { InvoicesService } from './invoices.service';
         name: 'MAIN_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://guest:guest@localhost:5672'],
-          queue: 'main_queue',
+          urls: [environment.RABBITMQ_URL],
+          queue: environment.RABBITMQ_QUEUE,
           queueOptions: { durable: false },
         },
       },

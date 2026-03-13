@@ -17,6 +17,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvoicesController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const pdfkit_1 = __importDefault(require("pdfkit"));
 const invoices_service_1 = require("./invoices.service");
 let InvoicesController = class InvoicesController {
@@ -119,6 +120,9 @@ let InvoicesController = class InvoicesController {
 exports.InvoicesController = InvoicesController;
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear una nueva factura' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'La factura ha sido creada satisfactoriamente.' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Datos de entrada inválidos.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -126,6 +130,8 @@ __decorate([
 ], InvoicesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener todas las facturas' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de facturas retornada exitosamente.' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
@@ -141,14 +147,22 @@ __decorate([
 ], InvoicesController.prototype, "getPdfReport", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener una factura por su ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Factura retornada exitosamente.' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'El ID no es un UUID válido.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Factura no encontrada.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], InvoicesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Actualizar una factura existente' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'La factura ha sido actualizada exitosamente.' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'El ID no es un UUID válido.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Factura no encontrada.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
@@ -156,12 +170,17 @@ __decorate([
 ], InvoicesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Eliminar una factura' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'La factura ha sido eliminada exitosamente.' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'El ID no es un UUID válido.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Factura no encontrada.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], InvoicesController.prototype, "remove", null);
 exports.InvoicesController = InvoicesController = __decorate([
+    (0, swagger_1.ApiTags)('Invoices'),
     (0, common_1.Controller)('invoices'),
     __metadata("design:paramtypes", [invoices_service_1.InvoicesService])
 ], InvoicesController);

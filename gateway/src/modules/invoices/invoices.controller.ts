@@ -10,16 +10,22 @@ import {
   Res,
   NotFoundException,
   BadRequestException,
+  ParseUUIDPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 import PDFDocument from 'pdfkit';
 import { InvoicesService } from './invoices.service';
 
+@ApiTags('Invoices')
 @Controller('invoices')
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Crear una nueva factura' })
+  @ApiResponse({ status: 201, description: 'La factura ha sido creada satisfactoriamente.' })
+  @ApiResponse({ status: 400, description: 'Datos de entrada inválidos.' })
   async create(@Body() body: any) {
     try {
       return await this.invoicesService.create(body);
@@ -32,6 +38,8 @@ export class InvoicesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Obtener todas las facturas' })
+  @ApiResponse({ status: 200, description: 'Lista de facturas retornada exitosamente.' })
   findAll() {
     return this.invoicesService.findAll();
   }
@@ -103,7 +111,11 @@ export class InvoicesController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @ApiOperation({ summary: 'Obtener una factura por su ID' })
+  @ApiResponse({ status: 200, description: 'Factura retornada exitosamente.' })
+  @ApiResponse({ status: 400, description: 'El ID no es un UUID válido.' })
+  @ApiResponse({ status: 404, description: 'Factura no encontrada.' })
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     try {
       return await this.invoicesService.findOne(id);
     } catch (error: any) {
@@ -115,7 +127,11 @@ export class InvoicesController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: any) {
+  @ApiOperation({ summary: 'Actualizar una factura existente' })
+  @ApiResponse({ status: 200, description: 'La factura ha sido actualizada exitosamente.' })
+  @ApiResponse({ status: 400, description: 'El ID no es un UUID válido.' })
+  @ApiResponse({ status: 404, description: 'Factura no encontrada.' })
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: any) {
     try {
       return await this.invoicesService.update(id, body);
     } catch (error: any) {
@@ -127,7 +143,11 @@ export class InvoicesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  @ApiOperation({ summary: 'Eliminar una factura' })
+  @ApiResponse({ status: 200, description: 'La factura ha sido eliminada exitosamente.' })
+  @ApiResponse({ status: 400, description: 'El ID no es un UUID válido.' })
+  @ApiResponse({ status: 404, description: 'Factura no encontrada.' })
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     try {
       await this.invoicesService.remove(id);
     } catch (error: any) {

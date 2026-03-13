@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvoicesModule = void 0;
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
+const env_config_1 = require("../../config/env.config");
 const invoices_controller_1 = require("./invoices.controller");
 const invoices_service_1 = require("./invoices.service");
 let InvoicesModule = class InvoicesModule {
@@ -22,8 +23,8 @@ exports.InvoicesModule = InvoicesModule = __decorate([
                     name: 'MAIN_SERVICE',
                     transport: microservices_1.Transport.RMQ,
                     options: {
-                        urls: ['amqp://guest:guest@localhost:5672'],
-                        queue: 'main_queue',
+                        urls: [env_config_1.environment.RABBITMQ_URL],
+                        queue: env_config_1.environment.RABBITMQ_QUEUE,
                         queueOptions: { durable: false },
                     },
                 },

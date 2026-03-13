@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClientsModule } from './modules/clients/clients.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
 import { environment } from './config/env.config';
 
@@ -16,7 +15,6 @@ import { environment } from './config/env.config';
       autoLoadEntities: true,
       synchronize: true, // Only for dev
     }),
-    ClientsModule,
     InvoicesModule,
   ],
 })
