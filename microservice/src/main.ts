@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import type { MicroserviceOptions } from '@nestjs/microservices';
-import { Transport } from '@nestjs/microservices';
-import { environment } from './config/env.config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -10,13 +8,15 @@ async function bootstrap() {
     {
       transport: Transport.RMQ,
       options: {
-        urls: [environment.RABBITMQ_URL],
-        queue: environment.RABBITMQ_QUEUE,
+        // process.env está disponible porque ConfigModule.forRoot() carga el .env
+        // antes de que NestJS procese las opciones del transporte
+        urls: [process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672'],
+        queue: process.env.RABBITMQ_QUEUE || 'main_queue',
         queueOptions: { durable: false },
       },
     },
   );
   await app.listen();
-  console.log('Microservicio escuchando en RabbitMQ (cola: main_queue)');
+  console.log(`Microservicio escuchando en RabbitMQ (cola: ${process.env.RABBITMQ_QUEUE || 'main_queue'})...`);
 }
 bootstrap();

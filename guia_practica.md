@@ -1,7 +1,7 @@
 # Guía: Sistema de Microservicios con NestJS + RabbitMQ
 
 ## Estado actual del proyecto
-- ✅ `docker-compose.yml` ya está creado (RabbitMQ + MySQL)
+- ✅ [docker-compose.yml](file:///d:/escritorio/disacomp-4/docker-compose.yml) ya está creado (RabbitMQ + MySQL)
 - ✅ Proyecto `microservice` NestJS ya existe con dependencias instaladas
 - ❌ Falta configurar el microservicio con DDD
 - ❌ Falta crear el `gateway`

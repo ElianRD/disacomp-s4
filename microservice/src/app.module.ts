@@ -1,21 +1,30 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { InvoicesModule } from './modules/invoices/invoices.module';
-import { environment } from './config/env.config';
+import { ClientsModule } from './modules/clients/clients.module';
+import { databaseConfig, rabbitmqConfig } from './config/env.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: environment.DB_HOST,
-      port: environment.DB_PORT,
-      username: environment.DB_USER,
-      password: environment.DB_PASSWORD,
-      database: environment.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: true, // Only for dev
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      load: [databaseConfig, rabbitmqConfig],
     }),
-    InvoicesModule,
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'mysql',
+        host: config.get<string>('database.host'),
+        port: config.get<number>('database.port'),
+        username: config.get<string>('database.username'),
+        password: config.get<string>('database.password'),
+        database: config.get<string>('database.database'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+    }),
+    ClientsModule,
   ],
 })
 export class AppModule {}

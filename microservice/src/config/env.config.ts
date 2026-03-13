@@ -1,9 +1,14 @@
-export const environment = {
-  DB_HOST: process.env.DB_HOST || 'localhost',
-  DB_PORT: parseInt(process.env.DB_PORT || '3306', 10),
-  DB_USER: process.env.DB_USER || 'root',
-  DB_PASSWORD: process.env.DB_PASSWORD || 'root',
-  DB_NAME: process.env.DB_NAME || 'disacomp_db',
-  RABBITMQ_URL: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
-  RABBITMQ_QUEUE: process.env.RABBITMQ_QUEUE || 'main_queue',
-};
+import { registerAs } from '@nestjs/config';
+
+export const databaseConfig = registerAs('database', () => ({
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '3306', 10),
+  username: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || 'root',
+  database: process.env.DB_NAME || 'disacomp_db',
+}));
+
+export const rabbitmqConfig = registerAs('rabbitmq', () => ({
+  url: process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672',
+  queue: process.env.RABBITMQ_QUEUE || 'main_queue',
+}));
