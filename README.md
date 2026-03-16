@@ -1,178 +1,84 @@
-# Disacomp Microservices Architecture
+# Disacomp Microservices Architecture & ERP
 
-Este proyecto está construido usando **NestJS** bajo los principios de **Arquitectura Hexagonal** y **Diseño Impulsado por el Dominio (DDD)**. 
+Este proyecto ERP está construido usando **NestJS** bajo los principios de **Arquitectura Hexagonal** y **Diseño Impulsado por el Dominio (DDD)** en el Backend, y **Vue 3 + Tailwind CSS v4** en el Frontend.
 
-La solución consta de tres capas de infraestructura: un **Gateway** que actúa como API pública (con Swagger), un **Microservicio** que contiene la lógica de negocio aislada usando puertos y adaptadores, y **RabbitMQ** para la comunicación asíncrona entre ambos.
+La solución consta de cuatro capas principales:
+1. **Frontend (Vue SPA)**: Interfaz de usuario rica y reactiva, protegida por guardias de enrutamiento y estado global de sesión.
+2. **Gateway (NestJS)**: API pública RESTful exponiendo la documentación Swagger interactiva, protegida por JWT y RBAC (`@Roles(...)`).
+3. **Microservicio (NestJS)**: Lógica de negocio profunda segregada por módulos que procesa las reglas de dominio puras de la empresa e interactúa con la BD.
+4. **RabbitMQ**: Message Broker encargado de la comunicación asíncrona robusta entre el Gateway y el Microservicio.
+
+---
 
 ## 🛠 Requisitos Previos
 
 1.  **Node.js**: v18 o superior.
-2.  **Docker** y **Docker Compose**: instalados y corriendo, esenciales para la base de datos y la cola de mensajería.
+2.  **Docker** y **Docker Compose**: instalados y corriendo, esenciales para la base de datos (MySQL) y la mensajería en cola (RabbitMQ).
 
 ---
 
-## 🚀 Paso 1: Levantar la Infraestructura (Docker)
+## 🚀 Instalación y Despliegue Local Rápido
 
-Antes de encender los servidores de Nest, necesitamos que RabbitMQ y MySQL estén corriendo en Docker.
+### 1. Levantar Infraestructura Base
+Abre tu terminal en la carpeta principal del proyecto (`disacomp-4`) y levanta los contenedores:
+```bash
+docker-compose up -d
+```
+*(Esto iniciará MySQL en el puerto 3306 y RabbitMQ en 5672/15672)*
 
-1. Abre tu terminal en la carpeta principal del proyecto (`disacomp-4`).
-2. Ejecuta:
-   ```bash
-   docker-compose up -d
-   ```
-3. Docker descargará e iniciará dos contenedores:
-   * **`mysql_db`**: Base de datos corriendo en el puerto `3306`.
-   * **`rabbitmq`**: RabbitMQ corriendo en el puerto `5672` (comunicación) y la interfaz de administrador en el puerto `15672`.
+### 2. Levantar el Microservicio Core
+Abre una nueva terminal y ejecuta:
+```bash
+cd microservice
+npm install
+npm run start:dev
+```
 
-Puede tomar unos segundos para que la base de datos MySQL esté lista y acepte conexiones. Puedes verificar el estado en el administrador web de RabbitMQ: http://localhost:15672 (Credenciales por defecto de Docker: admin/admin o guest/guest, revisa tu config).
+### 3. Levantar el API Gateway
+Abre una tercera terminal, separada de las anteriores, y ejecuta:
+```bash
+cd gateway
+npm install
+npm run start:dev
+```
+*(El Gateway iniciará y escuchará peticiones públicas en el puerto 3001)*
+
+### 4. Poblar la Base de Datos (Seeding de Inicialización)
+Para cargar datos iniciales ricos y poder usar el sistema de inmediato, realiza una petición al Gateway. Esto limpiará el esquema viejo y construirá un escenario idóneo:
+```bash
+curl -X POST http://localhost:3001/seed
+```
+*(También puedes ejecutar este POST desde Postman o Swagger)*
+
+### 5. Levantar el App Frontend Web
+Abre una cuarta terminal, dirígete hacia el front y lánzalo a través de Vite:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*(Visita el enlace local provisto por Vite, por defecto: http://localhost:5173)*
 
 ---
 
-## ⚙️ Paso 2: Levantar el Microservicio
+## 🔐 Autenticación y Credenciales (Importante)
 
-El microservicio es responsable de conectarse a la Base de Datos y ejecutar la lógica core del sistema.
+El sistema completo funciona bloqueado hasta demostrar identidad mediante tokens web JSON (JWT).
+Al ejecutar el Paso 4 (`/seed`), el sistema encripta y prepara las siguientes credenciales para que pruebes las vistas inmediatamente sin necesidad de registrarte:
 
-1. Abre una **nueva pestaña** en tu terminal.
-2. Navega a la carpeta del microservicio:
-   ```bash
-   cd microservice
-   ```
-3. Instala las dependencias (si aún no lo has hecho):
-   ```bash
-   npm install
-   ```
-4. Inicia el microservicio en modo desarrollo:
-   ```bash
-   npm run start:dev
-   ```
-5. Si ves un mensaje de confirmación de "TypeORM connection" y uno de que RabbitMQ se conectó exitosamente, vas por buen camino. El microservicio se iniciará en el puerto 3000 (o el que defina su ambiente).
+**1. Administrador (Acceso y Visualización Total):**
+- **Email:** `admin@disacomp.com`
+- **Contraseña:** `admin123`
+
+**2. Clientes (Acceso Limitado a Visualizar exclusivamente Sus Propias Facturas):**
+- **Email:** `cliente1@correo.com` *(Hay 10 disponibles hasta `cliente10@correo.com`)*
+- **Contraseña:** `cliente123`
 
 ---
 
-## 🌐 Paso 3: Levantar el API Gateway
+## 📚 Módulos del Sistema Implementados
 
-El Gateway es la puerta de cara al internet (o intranet). Recibe las peticiones HTTP, las expone vía Swagger y las envía por la red vía RabbitMQ al microservicio.
-
-1. Abre una **tercera pestaña** en tu terminal (sin cerrar ni detener las anteriores).
-2. Navega a la carpeta del gateway:
-   ```bash
-   cd gateway
-   ```
-3. Instala las dependencias (si aún no lo has hecho):
-   ```bash
-   npm install
-   ```
-4. Inicia el gateway en modo desarrollo:
-   ```bash
-   npm run start:dev
-   ```
-5. El Gateway debería iniciar exitosamente.
-
----
-
-## 🧪 Paso 4: Probar la Arquitectura
-
-### Medio 1: Swagger (La forma más fácil y visual)
-
-La documentación automática e interactiva está activada usando Swagger en el Gateway.
-
-1. Abre tu navegador web favorito.
-2. Dirígete a: **`http://localhost:3001/api/docs`** (Ajusta el 3001 si tu Gateway usa un puerto distinto).
-3. Verás la interfaz de Swagger listando todos los endpoints para **Clients** e **Invoices**.
-
-**Flujo de prueba recomendado:**
-1. Expande el endpoint `POST /clients`, haz clic en "Try it out", cambia los datos de ejemplo (por ejemplo, asegurate de que el RNC tenga 9 u 11 dígitos numéricos reales y el celular un formato válido) y presiona "Execute".
-2. Copia el `id` (UUID) devuelto en la respuesta.
-3. Expande el endpoint `POST /invoices`, pega el UUID que acabas de copiar en el campo `clientId`, pon montos válidos y presiona "Execute".
-4. Usa el endpoint `GET /invoices/report/pdf` agregando un rango de fechas (`2020-01-01` a `2030-01-01`) para descargar **el PDF con el formato corporativo**.
-
-### Medio 2: Ejemplos de Peticiones con cURL / Postman
-
-Si prefieres usar la terminal o importar estos comandos a Postman, aquí tienes ejemplos concretos para todos los endpoints disponibles:
-
-#### 👥 Módulo de Clientes (Clients)
-
-**1. Crear un Cliente (POST)**
-```bash
-curl -X POST http://localhost:3001/clients \
--H "Content-Type: application/json" \
--d '{
-  "name": "Empresa de Prueba SRL",
-  "email": "contacto@pruebasrl.com",
-  "phone": "809-555-5555",
-  "rnc": "123456789"
-}'
-```
-
-**2. Listar todos los Clientes (GET)**
-```bash
-curl -X GET http://localhost:3001/clients
-```
-
-**3. Obtener un Cliente Específico (GET)**
-*(Sustituye la variable por un UUID real obtenido en el paso 2)*
-```bash
-curl -X GET http://localhost:3001/clients/SUSTITUIR-POR-ID-UUID
-```
-
-**4. Actualizar un Cliente (PUT)**
-```bash
-curl -X PUT http://localhost:3001/clients/SUSTITUIR-POR-ID-UUID \
--H "Content-Type: application/json" \
--d '{
-  "name": "Empresa de Prueba Actualizada",
-  "phone": "809-111-2222"
-}'
-```
-
-**5. Eliminar un Cliente (DELETE)**
-```bash
-curl -X DELETE http://localhost:3001/clients/SUSTITUIR-POR-ID-UUID
-```
-
----
-
-#### 🧾 Módulo de Facturas (Invoices)
-
-**1. Crear una Factura (POST)**
-*(Requiere que ya exista un cliente. Usa su ID aquí)*
-```bash
-curl -X POST http://localhost:3001/invoices \
--H "Content-Type: application/json" \
--d '{
-  "clientId": "SUSTITUIR-POR-ID-DEL-CLIENTE",
-  "subTotal": 1000.00,
-  "tax": 180.00,
-  "total": 1180.00,
-  "status": "PAID"
-}'
-```
-
-**2. Listar todas las Facturas (GET)**
-```bash
-curl -X GET http://localhost:3001/invoices
-```
-
-**3. Obtener el Reporte en PDF (GET)**
-*(Abre la URL en tu navegador web normal para descargar el archivo)*
-```
-http://localhost:3001/invoices/report/pdf?startDate=2024-01-01&endDate=2030-12-31
-```
-
-**4. Obtener una Factura Específica (GET)**
-```bash
-curl -X GET http://localhost:3001/invoices/SUSTITUIR-POR-ID-UUID
-```
-
----
-
-## 🛑 Detener el Entorno
-
-Cuando termines de trabajar:
-1. En la terminal del Gateway presiona `Ctrl + C`.
-2. En la terminal del Microservicio presiona `Ctrl + C`.
-3. Ve a la consola raíz y apaga los contenedores (esto mantendrá la data gracias a los volúmenes configurados):
-   ```bash
-   docker-compose down
-   ```
-   *Nota: Si prefieres borrar también la data de la DB local para un inicio fresco, usa `docker-compose down -v`.*
+1. **Usuarios y Auth**: Generación y canje de autenticación, control de acceso basado en roles (ADMIN vs CLIENT) impidiendo fugas de datos de negocio.
+2. **Clientes**: Gestión del directorio, nombres comerciales y RNCs de la cartera empresarial para asignar facturas.
+3. **Productos**: Inventario básico valorizado con precios dinámicos asignables a iteraciones transaccionales.
+4. **Facturas**: Ciclo de vida y carrito de compra con facturas compuestas por `InvoiceItems` (Relación M-a-M o 1-a-N). Generación automática de Reportes de Facturación consolidada en **PDF corporativo descargable**.

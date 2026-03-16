@@ -1,10 +1,11 @@
 # Guía: Sistema de Microservicios con NestJS + RabbitMQ
 
-## Estado actual del proyecto
-- ✅ [docker-compose.yml](file:///d:/escritorio/disacomp-4/docker-compose.yml) ya está creado (RabbitMQ + MySQL)
-- ✅ Proyecto `microservice` NestJS ya existe con dependencias instaladas
-- ❌ Falta configurar el microservicio con DDD
-- ❌ Falta crear el `gateway`
+## Estado actual del proyecto (COMPLETADO)
+- ✅ **Infraestructura**: Docker Compose con RabbitMQ + MySQL levantados.
+- ✅ **Microservicio NestJS**: DDD estricto implementado, ValueObjects, TypeOrm y RabbitMQ Consumer.
+- ✅ **API Gateway NestJS**: Endpoints RESTful, Inyección controlada con Swagger y JWT Auth Guards.
+- ✅ **Frontend Vue 3**: Vite SPA + Tailwind v4 CSS, Vistas Reactivas, Axios Interceptors Globales.
+- ✅ **Autenticación (RBAC)**: Encriptación Hash bcrypt, roles jerárquicos y aislamiento multi-cliente.
 
 ---
 
@@ -739,3 +740,30 @@ Microservicio
       ↑ respuesta sube por el mismo camino
 Gateway responde al cliente HTTP
 ```
+
+---
+
+## PASO 7 — Interfaz Frontend Web (Vue 3 + Vite + Tailwind v4)
+
+Se ha orquestado una aplicación cliente SPA robusta en el pasillo `frontend/`.
+- **Dependencias Destacadas**: `vue-router` para navegación interna segura, `axios` para consumo de APIs, y `lucide-vue-next` para iconografía SVG ágil.
+- **Arquitectura de Interceptores HTTP**: En `services/api.js` se adjunta obligatoriamente un Header `Bearer <token>` almacenado en un State Reactivo global (`stores/auth.js`) de manera transparente para todos los componentes de la aplicación y se hace escucha reactiva a caídas `401 Unauthorized` para desloguear y retornar a Login en automático.
+- **Vistas Completas (Views)**: CRUD y Tablas Reactivas para Invoices, Clients, Products y un apartado administrativo especial de Users.
+
+## PASO 8 — Evolución del Modelo Factorial
+
+El modelo simple original para propósitos de Testing fue suplantado por un Dominio estricto de ERP:
+- Las Facturas (`Invoices`) ya no aceptan un total arbitrario impuesto por el DTO del usuario. Poseen obligatoriamente una lista de **Items** (`InvoiceItem`) los cuales enlazan ID's reales guardados desde **Productos** (`Product`). 
+- Por reglas DDD, el Microservicio localiza cada ítem en la tabla maestra de productos y efectúa un cálculo algorítmico interno. Un cliente no puede enviar al server "quiero gastar 10 dólares", la máquina dictaminará el subtotal por la cantidad y precio real y calculará un recargo contable de Impuestos.
+- La generación de Reportes PDF fue modernizada. En vez de solo listar los folios, el `PdfGeneratorService` ahora pinta una Grilla o Tabla dinámica, iterando sobre cada item adentrado y consolidando la cifra económica total.
+
+## PASO 9 — Capa de Seguridad (Autenticación Criptográfica & RBAC)
+
+La vulnerabilidad por defecto de los servicios fue aplacada por una arquitectura Zero-Trust separada por capas:
+- **Resguardo en Base de Datos (Hashing)**: El Microservicio tiene totalmente prohibido devolver cadenas planas de contraseñas u ocultarlas en memoria. Todos los registros van filtrados asincrónicamente por el algoritmo `Bcrypt`.
+- **Firma por Tokens (Gateway API)**: El intermediario Gateway asume un rol proactivo como Firewall. Utilizando `@nestjs/jwt` sella y expide en cada validación de credencial aprobada un pase y exige la interceptación de lecturas usando librerías pre-establecidas por `passport-jwt` en unión al Custom `@UseGuards(JwtAuthGuard)`.
+- **Restricción de Privilegios (Rol-Based Access Control)**:
+   - Apoyándose en el MetaDecorador personalizado `@Roles()`, el API no deja pasar peticiones PUT/POST en clientes o productos si lee en tu token la presencia del cargo de `CLIENT`.
+   - Si, por otro lado, posees un `CLIENT`, estás obligado a tener un valor de Referencia unificadora comercial (`clientId`).
+   - El Decorador Custom `@CurrentUser()` de Nest permite pescar tu ID del Payload validado y pasarlo al Servicio. De esta forma, el Microservicio ejecuta una condicional paramétrica `WHERE client_id = 'tuid'` de manera forzada sobre la base de datos SQL, garantizando que jamás un cliente observará la data sensible generada por otro cliente.
+
