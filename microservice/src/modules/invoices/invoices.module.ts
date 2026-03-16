@@ -3,7 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Infrastructure — Persistence
 import { InvoiceOrmEntity } from './infrastructure/persistence/entities/invoice.orm-entity';
+import { InvoiceItemOrmEntity } from './infrastructure/persistence/entities/invoice-item.orm-entity';
 import { InvoiceRepository } from './infrastructure/persistence/repositories/invoice.repository';
+
+// External Modules
+import { ProductsModule } from '../products/products.module';
 
 // Infrastructure — Messaging
 import { InvoiceEventPublisher } from './infrastructure/messaging/publishers/invoice-event.publisher';
@@ -25,7 +29,10 @@ import { INVOICE_REPOSITORY } from './domain/repositories/invoice.repository.int
 import { INVOICE_EVENT_PUBLISHER } from './application/ports/output/invoice-event-publisher.port';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([InvoiceOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([InvoiceOrmEntity, InvoiceItemOrmEntity]),
+    ProductsModule,
+  ],
   controllers: [InvoiceController, InvoiceEventConsumer],
   providers: [
     // Repository binding

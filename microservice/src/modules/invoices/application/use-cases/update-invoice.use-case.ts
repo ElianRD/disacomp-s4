@@ -23,7 +23,7 @@ export class UpdateInvoiceUseCase {
 
     existing.update(dto);
 
-    const updated = await this.invoiceRepository.update(id, dto as any);
+    const updated = await this.invoiceRepository.save(existing);
 
     for (const event of existing.domainEvents) {
       await this.eventPublisher.publish(event);

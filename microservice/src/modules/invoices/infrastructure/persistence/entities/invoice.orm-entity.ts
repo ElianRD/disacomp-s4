@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { InvoiceItemOrmEntity } from './invoice-item.orm-entity';
 
 @Entity('invoices')
 export class InvoiceOrmEntity {
@@ -19,6 +20,9 @@ export class InvoiceOrmEntity {
 
   @Column({ default: 'PAID' })
   status: string;
+
+  @OneToMany(() => InvoiceItemOrmEntity, (item) => item.invoice, { cascade: true, eager: true })
+  items: InvoiceItemOrmEntity[];
 
   @CreateDateColumn()
   createdAt: Date;

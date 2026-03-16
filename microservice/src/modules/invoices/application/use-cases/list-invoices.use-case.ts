@@ -11,8 +11,8 @@ export class ListInvoicesUseCase {
     private readonly invoiceRepository: IInvoiceRepository,
   ) {}
 
-  async execute(): Promise<InvoiceResponseDto[]> {
-    const invoices = await this.invoiceRepository.findAll();
+  async execute(clientId?: string): Promise<InvoiceResponseDto[]> {
+    const invoices = await this.invoiceRepository.findAll(clientId);
     return invoices.map(InvoiceApplicationMapper.toResponse);
   }
 }

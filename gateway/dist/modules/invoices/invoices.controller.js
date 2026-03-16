@@ -17,6 +17,11 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const invoices_service_1 = require("./invoices.service");
 const pdf_generator_service_1 = require("./pdf-generator.service");
+const create_invoice_dto_1 = require("./dtos/create-invoice.dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 let InvoicesController = class InvoicesController {
     invoicesService;
     pdfGeneratorService;
@@ -35,8 +40,9 @@ let InvoicesController = class InvoicesController {
             throw error;
         }
     }
-    findAll() {
-        return this.invoicesService.findAll();
+    findAll(user) {
+        const clientId = user.role === 'CLIENT' ? user.clientId : undefined;
+        return this.invoicesService.findAll(clientId);
     }
     async getPdfReport(startDate, endDate, res) {
         const report = await this.invoicesService.getSalesReport(startDate, endDate);
@@ -79,20 +85,22 @@ let InvoicesController = class InvoicesController {
 exports.InvoicesController = InvoicesController;
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, swagger_1.ApiOperation)({ summary: 'Crear una nueva factura' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'La factura ha sido creada satisfactoriamente.' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Datos de entrada inválidos.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_invoice_dto_1.CreateInvoiceDto]),
     __metadata("design:returntype", Promise)
 ], InvoicesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Obtener todas las facturas' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de facturas retornada exitosamente.' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], InvoicesController.prototype, "findAll", null);
 __decorate([
@@ -117,6 +125,7 @@ __decorate([
 ], InvoicesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, swagger_1.ApiOperation)({ summary: 'Actualizar una factura existente' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'La factura ha sido actualizada exitosamente.' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'El ID no es un UUID válido.' }),
@@ -129,6 +138,7 @@ __decorate([
 ], InvoicesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar una factura' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'La factura ha sido eliminada exitosamente.' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'El ID no es un UUID válido.' }),
@@ -140,6 +150,8 @@ __decorate([
 ], InvoicesController.prototype, "remove", null);
 exports.InvoicesController = InvoicesController = __decorate([
     (0, swagger_1.ApiTags)('Invoices'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('invoices'),
     __metadata("design:paramtypes", [invoices_service_1.InvoicesService,
         pdf_generator_service_1.PdfGeneratorService])

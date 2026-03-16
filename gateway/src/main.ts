@@ -16,8 +16,16 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
-  console.log(`Gateway corriendo en: http://localhost:${process.env.PORT ?? 3000}`);
-  console.log(`Swagger UI: http://localhost:${process.env.PORT ?? 3000}/api/docs`);
+  // Habilitar CORS para permitir peticiones desde el Frontend de Vue
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
+  const port = process.env.PORT ?? 3001;
+  await app.listen(port);
+  console.log(`Gateway corriendo en: http://localhost:${port}`);
+  console.log(`Swagger UI: http://localhost:${port}/api/docs`);
 }
 bootstrap();

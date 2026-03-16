@@ -10,8 +10,8 @@ export class InvoicesService {
     return firstValueFrom(this.client.send('invoice.create', data));
   }
 
-  async findAll() {
-    return firstValueFrom(this.client.send('invoice.findAll', {}));
+  async findAll(clientId?: string) {
+    return firstValueFrom(this.client.send('invoice.findAll', { clientId }));
   }
 
   async findOne(id: string) {

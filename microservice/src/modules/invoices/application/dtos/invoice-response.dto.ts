@@ -1,3 +1,11 @@
+export class InvoiceItemResponseDto {
+  id: string;
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  subTotal: number;
+}
+
 export class InvoiceResponseDto {
   id: string;
   invoiceNumber: string;
@@ -5,6 +13,7 @@ export class InvoiceResponseDto {
   date: Date;
   total: number;
   status: string;
+  items: InvoiceItemResponseDto[];
 }
 
 export class SalesReportResponseDto {

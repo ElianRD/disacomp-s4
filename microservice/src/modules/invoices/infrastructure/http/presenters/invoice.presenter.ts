@@ -9,6 +9,7 @@ export class InvoicePresenter {
       date: dto.date,
       total: dto.total,
       status: dto.status,
+      items: dto.items,
     };
   }
 

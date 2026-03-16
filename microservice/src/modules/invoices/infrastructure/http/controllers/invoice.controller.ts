@@ -30,9 +30,9 @@ export class InvoiceController {
   }
 
   @MessagePattern('invoice.findAll')
-  async findAll() {
+  async findAll(@Payload() payload: { clientId?: string } = {}) {
     try {
-      const results = await this.listInvoices.execute();
+      const results = await this.listInvoices.execute(payload.clientId);
       return InvoicePresenter.presentMany(results);
     } catch (error: any) {
       throw new RpcException({ message: error.message });

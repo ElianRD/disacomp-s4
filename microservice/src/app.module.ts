@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule } from './modules/clients/clients.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
+import { ProductsModule } from './modules/products/products.module';
+import { UsersModule } from './modules/users/users.module';
+import { SeedModule } from './modules/seed/seed.module';
 import { databaseConfig, rabbitmqConfig } from './config/env.config';
 
 @Module({
@@ -27,6 +30,9 @@ import { databaseConfig, rabbitmqConfig } from './config/env.config';
     }),
     ClientsModule,
     InvoicesModule,
+    ProductsModule,
+    UsersModule,
+    SeedModule,
   ],
 })
 export class AppModule {}

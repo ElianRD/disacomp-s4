@@ -24,8 +24,8 @@ let InvoicesService = class InvoicesService {
     async create(data) {
         return (0, rxjs_1.firstValueFrom)(this.client.send('invoice.create', data));
     }
-    async findAll() {
-        return (0, rxjs_1.firstValueFrom)(this.client.send('invoice.findAll', {}));
+    async findAll(clientId) {
+        return (0, rxjs_1.firstValueFrom)(this.client.send('invoice.findAll', { clientId }));
     }
     async findOne(id) {
         return (0, rxjs_1.firstValueFrom)(this.client.send('invoice.findOne', id));
